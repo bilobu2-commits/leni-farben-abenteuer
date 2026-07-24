@@ -2,9 +2,9 @@ import Phaser from "phaser";
 import { createGroundShadow } from "./GroundShadow";
 
 const DISPLAY_HEIGHT = 72;
-const SHADOW_OFFSET_Y = 28;
-const SHADOW_WIDTH = 40;
-const SHADOW_HEIGHT = 14;
+const SHADOW_OFFSET_Y = 31;
+const SHADOW_WIDTH = 50;
+const SHADOW_HEIGHT = 16;
 
 export class PaintBox extends Phaser.Physics.Arcade.Sprite {
   color: number;

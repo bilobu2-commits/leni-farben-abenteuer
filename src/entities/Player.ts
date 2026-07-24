@@ -73,7 +73,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     const angle = Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y);
-    this.setVelocity(Math.cos(angle) * this.speed, Math.sin(angle) * this.speed);
+    const velocityX = Math.cos(angle) * this.speed;
+    this.setVelocity(velocityX, Math.sin(angle) * this.speed);
+
+    if (velocityX < -1) {
+      this.setFlipX(true);
+    } else if (velocityX > 1) {
+      this.setFlipX(false);
+    }
   }
 
   private updateBrushIndicator(): void {

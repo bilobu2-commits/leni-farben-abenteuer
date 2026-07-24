@@ -1,4 +1,5 @@
 export interface LevelConfig {
+  label: string;
   mapWidth: number;
   mapHeight: number;
   paintBoxes: { x: number; y: number; color: number }[];
@@ -13,6 +14,7 @@ export interface LevelConfig {
 }
 
 export const LEVEL_1: LevelConfig = {
+  label: "Level 1",
   mapWidth: 960,
   mapHeight: 640,
   paintBoxes: [{ x: 60, y: 320, color: 0x2f6fed }],

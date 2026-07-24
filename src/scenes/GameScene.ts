@@ -2,10 +2,14 @@ import Phaser from "phaser";
 import { Player } from "../entities/Player";
 import { Creature } from "../entities/Creature";
 import { PaintBox } from "../entities/PaintBox";
+import { createGroundShadow } from "../entities/GroundShadow";
 import { LEVEL_1 } from "../config/levels";
-import { setupProgressDots, fillProgressDot } from "../ui/Hud";
+import { setLevelLabel, setupScore, markCreaturePainted } from "../ui/Hud";
 
 const WORLD_BOUNDS_MARGIN = 40;
+const HOME_DECORATION_X = 930;
+const HOME_DECORATION_Y = 55;
+const HOME_DECORATION_HEIGHT = 160;
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -26,8 +30,10 @@ export class GameScene extends Phaser.Scene {
 
     this.drawPaperMap();
     this.setupPhysicsBounds();
+    this.placeHomeDecoration();
     this.placeEntities();
-    setupProgressDots(LEVEL_1.creatures.length);
+    setLevelLabel(LEVEL_1.label);
+    setupScore(LEVEL_1.creatures.map((c) => ({ id: c.id, color: c.color })));
     this.setupClickToMove();
     this.setupPaintBoxRefill();
     this.setupCreaturePainting();
@@ -49,6 +55,13 @@ export class GameScene extends Phaser.Scene {
     );
   }
 
+  private placeHomeDecoration(): void {
+    createGroundShadow(this, HOME_DECORATION_X, HOME_DECORATION_Y + 60, 240, 26);
+
+    const home = this.add.image(HOME_DECORATION_X, HOME_DECORATION_Y, "home");
+    home.setScale(HOME_DECORATION_HEIGHT / home.height);
+  }
+
   private placeEntities(): void {
     for (const p of LEVEL_1.paintBoxes) {
       this.paintBoxes.push(new PaintBox(this, p.x, p.y, p.color, "paintpot"));
@@ -60,7 +73,7 @@ export class GameScene extends Phaser.Scene {
         { id: c.id, x: c.startX, y: c.startY, homeX: c.homeX, homeY: c.homeY, color: c.color },
         "monster"
       );
-      creature.on("arrived-home", () => this.handleCreatureArrivedHome(creature.color));
+      creature.on("arrived-home", () => this.handleCreatureArrivedHome(creature.id, creature.color));
       this.creatures.push(creature);
     }
 
@@ -100,9 +113,9 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.creatures, this.paintBoxes);
   }
 
-  private handleCreatureArrivedHome(color: number): void {
+  private handleCreatureArrivedHome(id: string, color: number): void {
     this.sound.play(Phaser.Math.Between(0, 1) === 0 ? "home-sound-1" : "home-sound-2");
-    fillProgressDot(this.homeCount, color);
+    markCreaturePainted(id, color);
 
     this.homeCount += 1;
     if (this.homeCount === LEVEL_1.creatures.length) {
@@ -112,6 +125,7 @@ export class GameScene extends Phaser.Scene {
 
   private showLevelComplete(): void {
     this.levelComplete = true;
+    this.sound.play("game-end-sound");
     const { mapWidth, mapHeight } = LEVEL_1;
 
     const overlay = this.add.rectangle(mapWidth / 2, mapHeight / 2, mapWidth, mapHeight, 0xffffff, 0);

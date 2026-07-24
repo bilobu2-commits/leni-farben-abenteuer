@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { PreloadScene } from "./scenes/PreloadScene";
 import { GameScene } from "./scenes/GameScene";
 import { LEVEL_1 } from "./config/levels";
+import { setupMuteButton } from "./ui/Hud";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -19,6 +20,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const game = new Phaser.Game(config);
+setupMuteButton(game.sound);
 
 if (import.meta.env.DEV) {
   (window as unknown as { game: Phaser.Game }).game = game;

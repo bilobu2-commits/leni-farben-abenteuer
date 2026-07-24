@@ -21,33 +21,89 @@
         align-items: center;
       }
       #hud {
+        position: relative;
         width: 960px;
         text-align: center;
       }
-      #hud h1 {
-        margin: 4px 0;
-        font-size: 20px;
-        color: #333333;
+      #title-image {
+        display: block;
+        margin: 4px auto 0;
+        height: 150px;
+        width: auto;
       }
-      #progress {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
+      #level-label {
         margin-bottom: 8px;
+        font-size: 26px;
+        font-weight: bold;
+        color: #555555;
       }
-      .progress-dot {
-        width: 16px;
-        height: 16px;
+      #mute-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: #ffffff;
         border: 2px solid #999999;
-        box-sizing: border-box;
+        background: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
       }
-      .progress-dot.filled {
-        border-color: #222222;
-        animation: dot-pop 0.22s ease-out;
+      #mute-button:hover {
+        background: #f0f0f0;
       }
-      @keyframes dot-pop {
+      #mute-button .icon-muted {
+        display: none;
+      }
+      #mute-button.muted .icon-unmuted {
+        display: none;
+      }
+      #mute-button.muted .icon-muted {
+        display: block;
+      }
+      #game {
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+      }
+      #score {
+        width: 960px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .score-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .score-icon {
+        width: 30px;
+        height: 30px;
+        background-color: #d8d4c8;
+        -webkit-mask-image: url("/sprites/monster.png");
+        mask-image: url("/sprites/monster.png");
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+      }
+      .score-icon.filled {
+        animation: icon-pop 0.22s ease-out;
+      }
+      .score-icon-reference {
+        width: 38px;
+        height: 38px;
+        padding-right: 12px;
+        margin-right: 4px;
+        border-right: 2px dashed #c9c2b0;
+      }
+      @keyframes icon-pop {
         0% {
           transform: scale(1.6);
         }
@@ -55,18 +111,28 @@
           transform: scale(1);
         }
       }
-      #game {
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
-      }
     </style>
   </head>
   <body>
     <div id="app">
       <div id="hud">
-        <h1>Leni's Farben-Abenteuer</h1>
-        <div id="progress"></div>
+        <button id="mute-button" type="button" aria-label="Ton ein- und ausschalten">
+          <svg class="icon-unmuted" viewBox="0 0 24 24" width="22" height="22">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#333333" />
+            <path d="M16 9c1.2 1.2 1.2 4.8 0 6" stroke="#333333" stroke-width="1.6" fill="none" stroke-linecap="round" />
+            <path d="M18.5 6.5c2.4 2.4 2.4 8.6 0 11" stroke="#333333" stroke-width="1.6" fill="none" stroke-linecap="round" />
+          </svg>
+          <svg class="icon-muted" viewBox="0 0 24 24" width="22" height="22">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#333333" />
+            <line x1="15" y1="7" x2="22" y2="17" stroke="#c0392b" stroke-width="2" stroke-linecap="round" />
+            <line x1="22" y1="7" x2="15" y2="17" stroke="#c0392b" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <img id="title-image" src="/sprites/ueberschrift.png" alt="Leni's Farben-Abenteuer" />
+        <div id="level-label"></div>
       </div>
       <div id="game"></div>
+      <div id="score"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
