@@ -8,6 +8,7 @@ const WORLD_BOUNDS_MARGIN = 40;
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
+  private paintBox!: PaintBox;
 
   constructor() {
     super("GameScene");
@@ -19,6 +20,7 @@ export class GameScene extends Phaser.Scene {
     this.placeEntities();
     this.showTitle();
     this.setupClickToMove();
+    this.setupPaintBoxRefill();
   }
 
   private drawPaperMap(): void {
@@ -41,7 +43,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private placeEntities(): void {
-    new PaintBox(
+    this.paintBox = new PaintBox(
       this,
       LEVEL_1.paintBox.x,
       LEVEL_1.paintBox.y,
@@ -74,6 +76,12 @@ export class GameScene extends Phaser.Scene {
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       this.player.moveTo(pointer.worldX, pointer.worldY);
       this.showClickMarker(pointer.worldX, pointer.worldY);
+    });
+  }
+
+  private setupPaintBoxRefill(): void {
+    this.physics.add.overlap(this.player, this.paintBox, () => {
+      this.player.setBrushColor(this.paintBox.color);
     });
   }
 
