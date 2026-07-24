@@ -15,13 +15,59 @@
         height: 100%;
         font-family: sans-serif;
       }
+      #app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #hud {
+        width: 960px;
+        text-align: center;
+      }
+      #hud h1 {
+        margin: 4px 0;
+        font-size: 20px;
+        color: #333333;
+      }
+      #progress {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .progress-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #999999;
+        box-sizing: border-box;
+      }
+      .progress-dot.filled {
+        border-color: #222222;
+        animation: dot-pop 0.22s ease-out;
+      }
+      @keyframes dot-pop {
+        0% {
+          transform: scale(1.6);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
       #game {
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
       }
     </style>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="app">
+      <div id="hud">
+        <h1>Leni's Farben-Abenteuer</h1>
+        <div id="progress"></div>
+      </div>
+      <div id="game"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

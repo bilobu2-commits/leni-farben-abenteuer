@@ -1,10 +1,15 @@
 import Phaser from "phaser";
+import { createGroundShadow } from "./GroundShadow";
 
-const BRUSH_INDICATOR_OFFSET_Y = -34;
+const BRUSH_INDICATOR_OFFSET_Y = -60;
 const BRUSH_INDICATOR_RADIUS = 8;
 const EMPTY_BRUSH_FILL = 0xffffff;
 const EMPTY_BRUSH_STROKE = 0x999999;
 const FILLED_BRUSH_STROKE = 0x222222;
+const DISPLAY_HEIGHT = 90;
+const SHADOW_OFFSET_Y = 33;
+const SHADOW_WIDTH = 50;
+const SHADOW_HEIGHT = 18;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   brushColor: number | null = null;
@@ -13,9 +18,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private readonly speed = 260;
   private readonly stopDistance = 6;
   private readonly brushIndicator: Phaser.GameObjects.Arc;
+  private readonly shadow: Phaser.GameObjects.Ellipse;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
+    this.setScale(DISPLAY_HEIGHT / this.height);
+
+    this.shadow = createGroundShadow(scene, x, y + SHADOW_OFFSET_Y, SHADOW_WIDTH, SHADOW_HEIGHT);
+
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setCollideWorldBounds(true);
@@ -48,6 +58,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
 
+    this.shadow.setPosition(this.x, this.y + SHADOW_OFFSET_Y);
     this.brushIndicator.setPosition(this.x, this.y + BRUSH_INDICATOR_OFFSET_Y);
 
     if (!this.target) {

@@ -5,34 +5,18 @@ export class PreloadScene extends Phaser.Scene {
     super("PreloadScene");
   }
 
-  create(): void {
-    this.generatePlaceholderTextures();
-    this.scene.start("GameScene");
+  preload(): void {
+    this.load.image("leni", "sprites/leni.png");
+    this.load.image("monster", "sprites/monster.png");
+    this.load.image("paintpot", "sprites/paintpot.png");
+    this.load.image("background", "backgrounds/canvas.jpg");
+
+    this.load.audio("paint-sound", "audio/anmalsound.mp3");
+    this.load.audio("home-sound-1", "audio/heimkommen1.mp3");
+    this.load.audio("home-sound-2", "audio/heimkommen2.mp3");
   }
 
-  private generatePlaceholderTextures(): void {
-    const graphics = this.add.graphics();
-
-    graphics.fillStyle(0xffffff, 1);
-    graphics.lineStyle(3, 0x333333, 1);
-    graphics.fillCircle(24, 24, 22);
-    graphics.strokeCircle(24, 24, 22);
-    graphics.generateTexture("placeholder-player", 48, 48);
-
-    graphics.clear();
-    graphics.fillStyle(0xffffff, 1);
-    graphics.lineStyle(3, 0x333333, 1);
-    graphics.fillCircle(20, 20, 18);
-    graphics.strokeCircle(20, 20, 18);
-    graphics.generateTexture("placeholder-creature", 40, 40);
-
-    graphics.clear();
-    graphics.fillStyle(0x8b5a2b, 1);
-    graphics.lineStyle(3, 0x3d2817, 1);
-    graphics.fillRoundedRect(0, 0, 56, 40, 6);
-    graphics.strokeRoundedRect(0, 0, 56, 40, 6);
-    graphics.generateTexture("placeholder-paintbox", 56, 40);
-
-    graphics.destroy();
+  create(): void {
+    this.scene.start("GameScene");
   }
 }

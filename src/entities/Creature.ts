@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { createGroundShadow } from "./GroundShadow";
 
 export type CreatureState = "unbemalt" | "bemalt" | "laeuftHeim" | "zuhause";
 
@@ -16,6 +17,10 @@ const HOME_SPEED = 130;
 const HOME_ARRIVAL_DISTANCE = 10;
 const WANDER_DIRECTION_CHANGE_MIN = 1200;
 const WANDER_DIRECTION_CHANGE_MAX = 2600;
+const DISPLAY_HEIGHT = 70;
+const SHADOW_OFFSET_Y = 27;
+const SHADOW_WIDTH = 38;
+const SHADOW_HEIGHT = 14;
 
 export class Creature extends Phaser.Physics.Arcade.Sprite {
   readonly id: string;
@@ -24,6 +29,8 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
   readonly homeY: number;
   readonly color: number;
 
+  private readonly baseScale: number;
+  private readonly shadow: Phaser.GameObjects.Ellipse;
   private wanderTimer?: Phaser.Time.TimerEvent;
 
   constructor(scene: Phaser.Scene, config: CreatureConfig, texture: string) {
@@ -32,6 +39,17 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
     this.homeX = config.homeX;
     this.homeY = config.homeY;
     this.color = config.color;
+
+    this.baseScale = DISPLAY_HEIGHT / this.height;
+    this.setScale(this.baseScale);
+
+    this.shadow = createGroundShadow(
+      scene,
+      config.x,
+      config.y + SHADOW_OFFSET_Y,
+      SHADOW_WIDTH,
+      SHADOW_HEIGHT
+    );
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -54,6 +72,8 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
 
+    this.shadow.setPosition(this.x, this.y + SHADOW_OFFSET_Y);
+
     if (this.creatureState !== "laeuftHeim") {
       return;
     }
@@ -61,7 +81,11 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
     const distance = Phaser.Math.Distance.Between(this.x, this.y, this.homeX, this.homeY);
     if (distance <= HOME_ARRIVAL_DISTANCE) {
       this.arriveHome();
+      return;
     }
+
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, this.homeX, this.homeY);
+    this.setVelocity(Math.cos(angle) * HOME_SPEED, Math.sin(angle) * HOME_SPEED);
   }
 
   private startWandering(): void {
@@ -89,6 +113,8 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
 
   private walkHome(): void {
     this.creatureState = "laeuftHeim";
+    this.setCollideWorldBounds(false);
+    this.setBounce(0, 0);
     const angle = Phaser.Math.Angle.Between(this.x, this.y, this.homeX, this.homeY);
     this.setVelocity(Math.cos(angle) * HOME_SPEED, Math.sin(angle) * HOME_SPEED);
   }
@@ -100,7 +126,7 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
 
     this.scene.tweens.add({
       targets: this,
-      scale: { from: 1, to: 1.3 },
+      scale: { from: this.baseScale, to: this.baseScale * 1.3 },
       yoyo: true,
       duration: 220,
       ease: "Sine.easeOut",
@@ -118,6 +144,14 @@ export class Creature extends Phaser.Physics.Arcade.Sprite {
       duration: 300,
       ease: "Cubic.easeIn",
       onComplete: () => this.destroy()
+    });
+
+    this.scene.tweens.add({
+      targets: this.shadow,
+      alpha: 0,
+      duration: 300,
+      ease: "Cubic.easeIn",
+      onComplete: () => this.shadow.destroy()
     });
   }
 }
