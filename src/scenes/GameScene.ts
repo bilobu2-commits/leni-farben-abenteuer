@@ -9,6 +9,7 @@ const WORLD_BOUNDS_MARGIN = 40;
 export class GameScene extends Phaser.Scene {
   private player!: Player;
   private paintBox!: PaintBox;
+  private creatures: Creature[] = [];
 
   constructor() {
     super("GameScene");
@@ -21,6 +22,8 @@ export class GameScene extends Phaser.Scene {
     this.showTitle();
     this.setupClickToMove();
     this.setupPaintBoxRefill();
+    this.setupCreaturePainting();
+    this.setupPaintBoxObstacle();
   }
 
   private drawPaperMap(): void {
@@ -52,11 +55,12 @@ export class GameScene extends Phaser.Scene {
     );
 
     for (const c of LEVEL_1.creatures) {
-      new Creature(
+      const creature = new Creature(
         this,
         { id: c.id, x: c.startX, y: c.startY, homeX: c.homeX, homeY: c.homeY, color: c.color },
         "placeholder-creature"
       );
+      this.creatures.push(creature);
     }
 
     this.player = new Player(this, LEVEL_1.mapWidth / 2, LEVEL_1.mapHeight / 2, "placeholder-player");
@@ -83,6 +87,21 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.paintBox, () => {
       this.player.setBrushColor(this.paintBox.color);
     });
+  }
+
+  private setupCreaturePainting(): void {
+    this.physics.add.overlap(this.player, this.creatures, (_player, creatureObj) => {
+      const creature = creatureObj as Creature;
+      if (this.player.brushColor === null || creature.creatureState !== "unbemalt") {
+        return;
+      }
+      creature.paint(this.player.brushColor);
+      this.player.clearBrushColor();
+    });
+  }
+
+  private setupPaintBoxObstacle(): void {
+    this.physics.add.collider(this.creatures, this.paintBox);
   }
 
   private showClickMarker(x: number, y: number): void {
