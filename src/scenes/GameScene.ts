@@ -4,15 +4,21 @@ import { Creature } from "../entities/Creature";
 import { PaintBox } from "../entities/PaintBox";
 import { LEVEL_1 } from "../config/levels";
 
+const WORLD_BOUNDS_MARGIN = 40;
+
 export class GameScene extends Phaser.Scene {
+  private player!: Player;
+
   constructor() {
     super("GameScene");
   }
 
   create(): void {
     this.drawPaperMap();
+    this.setupPhysicsBounds();
     this.placeEntities();
     this.showTitle();
+    this.setupClickToMove();
   }
 
   private drawPaperMap(): void {
@@ -22,6 +28,16 @@ export class GameScene extends Phaser.Scene {
     g.fillRoundedRect(0, 0, mapWidth, mapHeight, 24);
     g.lineStyle(6, 0x333333, 1);
     g.strokeRoundedRect(3, 3, mapWidth - 6, mapHeight - 6, 24);
+  }
+
+  private setupPhysicsBounds(): void {
+    const { mapWidth, mapHeight } = LEVEL_1;
+    this.physics.world.setBounds(
+      WORLD_BOUNDS_MARGIN,
+      WORLD_BOUNDS_MARGIN,
+      mapWidth - WORLD_BOUNDS_MARGIN * 2,
+      mapHeight - WORLD_BOUNDS_MARGIN * 2
+    );
   }
 
   private placeEntities(): void {
@@ -41,7 +57,7 @@ export class GameScene extends Phaser.Scene {
       );
     }
 
-    new Player(this, LEVEL_1.mapWidth / 2, LEVEL_1.mapHeight / 2, "placeholder-player");
+    this.player = new Player(this, LEVEL_1.mapWidth / 2, LEVEL_1.mapHeight / 2, "placeholder-player");
   }
 
   private showTitle(): void {
@@ -52,5 +68,24 @@ export class GameScene extends Phaser.Scene {
         color: "#333333"
       })
       .setOrigin(0.5, 0);
+  }
+
+  private setupClickToMove(): void {
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      this.player.moveTo(pointer.worldX, pointer.worldY);
+      this.showClickMarker(pointer.worldX, pointer.worldY);
+    });
+  }
+
+  private showClickMarker(x: number, y: number): void {
+    const marker = this.add.circle(x, y, 10, 0x2f6fed, 0.5);
+    this.tweens.add({
+      targets: marker,
+      radius: 24,
+      alpha: 0,
+      duration: 350,
+      ease: "Cubic.easeOut",
+      onComplete: () => marker.destroy()
+    });
   }
 }
